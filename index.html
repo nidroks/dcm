@@ -1,0 +1,155 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>DCM Grid</title>    
+  <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.4.1/css/bootstrap.min.css" integrity="sha384-Vkoo8x4CGsO3+Hhxv8T/Q5PaXtkKtu6ug5TOeNV6gBiFeWPGFN9MuhOf23Q9Ifjh" crossorigin="anonymous">
+  <link rel="stylesheet" type="text/css" href="./style.css">
+  <script  src="https://code.jquery.com/jquery-3.4.1.min.js" integrity="sha256-CSXorXvZcTkaix6Yvo6HppcZGetbYMGWSFlBw8HfCJo="
+  crossorigin="anonymous"></script>
+  <script src="https://cdn.jsdelivr.net/npm/popper.js@1.16.0/dist/umd/popper.min.js" integrity="sha384-Q6E9RHvbIyZFJoft+2mJbHaEWldlvI9IOYy5n3zV9zzTtmI3UksdQRVvoxMfooAo" crossorigin="anonymous"></script>
+  <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.4.1/js/bootstrap.min.js" integrity="sha384-wfSDF2E50Y2D1uUdj0O3uMBJnjuUD4Ih7YwaYd1iqfktj0Uod8GCExl3Og8ifwB6" crossorigin="anonymous"></script>
+</head>
+<body> 
+<div class="container-fluid">  
+<span style="height: 100px">&nbsp;</span>
+<nav class="navbar navbar-expand-md navbar-light bg-light fixed-top">
+  <a href="#" class="navbar-brand">
+      Diecast Model Collection
+  </a>
+  <button type="button" class="navbar-toggler" data-toggle="collapse" data-target="#navbarCollapse">
+      <span class="navbar-toggler-icon"></span>
+  </button>
+
+  <div class="collapse navbar-collapse" id="navbarCollapse">
+      <div class="navbar-nav">
+          <a id="menu_114" href="javascript: setGridFilter(114)" class="nav-item nav-link" style="font-weight: bold">Ford&nbsp;(<label id="lblCount114"></label>)</a>
+          <a id="menu_117" href="javascript: setGridFilter(117)" class="nav-item nav-link">Mustang&nbsp;(<label id="lblCount117"></label>)</a>
+          <a id="menu_115" href="javascript: setGridFilter(115)" class="nav-item nav-link">Lincoln&nbsp;(<label id="lblCount115"></label>)</a>
+          <a id="menu_116" href="javascript: setGridFilter(116)" class="nav-item nav-link">Mercury&nbsp;(<label id="lblCount116"></label>)</a>
+      </div>
+      <div class="navbar-nav ml-auto">
+          <a href="jsondata.html" class="nav-item nav-link">JSON</a>
+          <a href="#" class="nav-item nav-link">About</a>
+      </div>
+  </div>
+</nav>
+</div>
+<br>
+<br>
+<div class="grid-container" id="divGridContainer"></div>
+
+<div id="divError" ></div>
+</body>
+
+<script src="DcmDataJson.js" ></script>
+<script >
+
+var strImageLocation="https://res.cloudinary.com/dpinj2tmj/image/upload/v1538837984/DCM/"; 
+  
+$( document ).ready(function() {
+  //sessionStorage.jsonData = jsonData;  
+  countModels();
+  MakeModelGrid(114); 
+});
+
+function countModels(){
+  var arCount=[0,0,0,0];  // 4 total = 114,115,116,117 = 110 + x
+  // loop in JSON data and count models
+  
+  var intDivision=0;
+  var intCount=0;
+  var intCountIndex=0;
+  var intStartDivision=114;
+  $.each(jsonData, function(i, item) {
+    intDivision=parseInt(jsonData[i].FordDivisionId);         
+    intCountIndex=intDivision-intStartDivision;
+    try{
+      arCount[intCountIndex]++;      
+    }
+    catch(error){
+      AddErrorLog(error);
+    }
+  }); // loop in JSON
+
+  for(var i=0; i<arCount.length; i++){
+    var strLabel="#lblCount"+(i+intStartDivision);
+    $(strLabel).html(arCount[i]);
+  }
+
+} // count models
+
+function AddErrorLog(strText){
+  var strErrorLog=$("#divError").html();
+  strErrorLog=$("#divError").html()+"<br>"+strText;
+  $("#divError").html(strErrorLog);    
+} // Add Error Log
+
+function getModelInfo(intModelId){
+  sessionStorage.imageLocation = strImageLocation;
+  sessionStorage.modelid = intModelId;
+  location.href="model.html";
+}
+
+function setGridFilter(intDivision){
+  var strMenuId="#menu_"+intDivision;
+  // change active item
+  $("[id*=menu]").css("font-weight","normal");
+  $(strMenuId).css("font-weight","bold");
+  MakeModelGrid(intDivision);
+} // Set Grid Filter
+
+function MakeModelGrid(intDivision){
+  // variables
+  var objDiv;
+  var objElement;
+  var objButton;
+  var strImageUrl;
+  var strImageName;
+  var i=0;
+  $("#divGridContainer").html("");
+  var intModelCount=40;
+  // loop
+  $.each(jsonData, function(i, item) {
+      if(parseInt(jsonData[i].FordDivisionId)==intDivision)
+      {
+      // zone box with background
+      objDiv=document.createElement("div");   
+      strImageName= jsonData[i].ModelImagePrefix+"_F.jpg";
+      strImageUrl= strImageLocation+strImageName;      
+      objDiv.className="zone";
+      objDiv.style.backgroundImage="url("+strImageUrl+"), url('NoModelImage.jpg')";      
+      // box header
+      objElement=document.createElement("header");
+      objElement.className="zone-header";
+      objElement.innerHTML=jsonData[i].VehicleYear+" "+jsonData[i].VehicleName;
+      objDiv.append(objElement);
+      // buffer 
+      objElement=document.createElement("section");
+      objElement.className="zone-buffer";
+      objDiv.append(objElement);
+      // box footer
+      objElement=document.createElement("footer");
+      objElement.className="zone-footer";
+      objButton=document.createElement("button");
+      objButton.className="btn btn-info";
+      objButton.innerText="More..";
+      objButton.setAttribute("type", "button"); // to avoid submit by default
+      objButton.setAttribute("onclick","getModelInfo("+jsonData[i].ModelID+")");
+      objElement.append(objButton);
+      // space after button
+      objButton=document.createElement("span");
+      objButton.style.width="10px";
+      objButton.innerHTML="&nbsp;";
+      objElement.append(objButton);            
+      objDiv.append(objElement);
+      // add zone box to main grid container
+      $("#divGridContainer").append(objDiv);
+      } // selected Division
+  }); // End Loop
+
+}// Make Model Grid
+
+</script>
+
+
+</html>

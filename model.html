@@ -1,0 +1,101 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Model Details</title>    
+  <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.4.1/css/bootstrap.min.css" integrity="sha384-Vkoo8x4CGsO3+Hhxv8T/Q5PaXtkKtu6ug5TOeNV6gBiFeWPGFN9MuhOf23Q9Ifjh" crossorigin="anonymous">
+  <link rel="stylesheet" type="text/css" href="./style.css">
+  <script  src="https://code.jquery.com/jquery-3.4.1.min.js" integrity="sha256-CSXorXvZcTkaix6Yvo6HppcZGetbYMGWSFlBw8HfCJo="
+  crossorigin="anonymous"></script>
+  <script src="https://cdn.jsdelivr.net/npm/popper.js@1.16.0/dist/umd/popper.min.js" integrity="sha384-Q6E9RHvbIyZFJoft+2mJbHaEWldlvI9IOYy5n3zV9zzTtmI3UksdQRVvoxMfooAo" crossorigin="anonymous"></script>
+  <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.4.1/js/bootstrap.min.js" integrity="sha384-wfSDF2E50Y2D1uUdj0O3uMBJnjuUD4Ih7YwaYd1iqfktj0Uod8GCExl3Og8ifwB6" crossorigin="anonymous"></script>
+</head>
+<body> 
+<div class="container-fluid">  
+<h1 id="lblModelName">Model Details</h1>
+<div class="row">
+<div class="col-lg-4 col-md-4 col-sm-12" >
+  <div class="card">
+    <div class="card-header">Vehicle</div>
+    <div class="card-body">
+      <div class="model-item-title">Ford Motor Company Division</div>
+      <div id="divDivision" class="model-item-data"></div>
+      <div class="model-item-title">Vehicle Name</div>
+      <div id="divVehicleName" class="model-item-data"></div>
+      <div class="model-item-title">Vehicle Year</div>
+      <div id="divVehicleYear" class="model-item-data"></div>
+      <div class="model-item-title">Vehicle Category</div>
+      <div id="divVehicleCategory" class="model-item-data"></div>
+      <div class="model-item-title">Vehicle Body Style</div>
+      <div id="divVehicleBodyStyle" class="model-item-data"></div>
+    </div>   
+  </div>
+</div>
+<div class="col-lg-4 col-md-4 col-sm-12" >
+  <div class="card">
+    <div class="card-header">Model</div>
+    <div class="card-body">
+      <div class="model-item-title">Model Manufacturer</div>
+      <div id="divModelManufacturer" class="model-item-data"></div>
+      <div class="model-item-title">Model Scale</div>
+      <div id="divModelScale" class="model-item-data"></div>
+      <div class="model-item-title">Model Color</div>
+      <div id="divModelColor" class="model-item-data"></div> 
+    </div>   
+  </div>
+</div>
+<div class="col-lg-4 col-md-4 col-sm-12" >
+  <div class="card">
+    <div class="card-header">Photos</div>
+    <div class="card-body" id="divImageContainer">    
+    </div>   
+  </div>
+</div>
+
+</div>
+
+</div>
+
+</body>
+<script src="DcmDataJson.js" ></script>
+<script >
+
+$( document ).ready(function() {
+  var intModelId = parseInt(sessionStorage.modelid);
+  // get single record object
+  var objModel={};
+  $.each(jsonData, function(i, item) {
+    if(parseInt(jsonData[i].ModelID)==intModelId){
+      objModel=jsonData[i];
+    }
+  });
+
+  $("#lblModelName").html(objModel.VehicleYear+" "+objModel.VehicleName);
+  $("#divDivision").html(objModel.FordDivisionName);
+  $("#divVehicleName").html(objModel.VehicleName);
+  $("#divVehicleYear").html(objModel.VehicleYear);
+  $("#divVehicleCategory").html(objModel.VehicleCategoryName);
+  $("#divVehicleBodyStyle").html(objModel.VehicleBodyStyleName);
+  $("#divModelManufacturer").html(objModel.ModelManufacturerName);
+  $("#divModelScale").html(objModel.ModelScaleName);
+  $("#divModelColor").html(objModel.ModelColorName);
+
+  var strImageLocation=(sessionStorage.imageLocation).toString();
+  // model photos (F - front, X -full, B - Back view)
+  var arPhotos=["_F.jpg", "_X.jpg", "_B.jpg"];
+  // zone box with background
+  for(var i=0; i<arPhotos.length; i++)
+  {
+      var objDiv=document.createElement("div");   
+      var strImageName= objModel.ModelImagePrefix+arPhotos[i];
+      var strImageUrl= strImageLocation+strImageName;      
+      objDiv.className="zone-large";
+      objDiv.style.backgroundImage="url("+strImageUrl+"), url('NoModelImage.jpg')";            
+      $("#divImageContainer").append(objDiv);
+      // add space
+      objDiv=document.createElement("br"); 
+      $("#divImageContainer").append(objDiv);
+  } 
+  
+});
+
+</script>
